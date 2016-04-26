@@ -1,0 +1,14 @@
+table div {
+    background-color: gray;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+}
+
+table, th, td {
+    border: 1px solid black;
+}
+
+input {
+    width: 40px;
+}

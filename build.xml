@@ -1,0 +1,9 @@
+<project name="bomb" basedir=".">
+    <target name="clean">
+        <delete file="bomb.zip"/>
+    </target>
+
+    <target name="zip">
+        <zip destfile="bomb.zip" basedir="src"/>
+    </target>
+</project>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Сапер</title>
+    <script src="jquery.min.js"></script>
+    <script src="bomb.js"></script>
+    <link rel="stylesheet" type="text/css" href="bomb.css">
+    <link rel="icon" href="bomb.png">
+</head>
+<body>
+
+<select id="mode" title="Режим">
+    <option value="beginner" data-x="9" data-y="9" data-bombs="10">Новичок</option>
+    <option value="amateur" data-x="16" data-y="16" data-bombs="40" selected="selected">Любитель</option>
+    <option value="expert" data-x="16" data-y="30" data-bombs="99">Эксперт</option>
+    <option value="custom" data-x="20" data-y="30" data-bombs="145">Особый</option>
+</select>
+
+<input type="number" id="x" title="Высота"/>
+<input type="number" id="y" title="Ширина"/>
+<input type="number" id="count" title="Кол-во бомб"/>
+<button id="restart" type="button">Новая игра</button>
+<br>
+<span>Найдено бомб: </span><span id="found">0</span>
+<br>
+<span>Кол-во бомб: </span><span id="all">0</span>
+<table id="table"></table>
+<span>Время: </span><span id="time">0</span><span> сек.</span>
+<br>
+<span>Лучшее время: </span><span id="best">999</span><span> сек.</span>
+<br>
+<button id="reset" type="button">Сбросить рекорды</button>
+
+</body>
+</html>
