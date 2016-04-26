@@ -36,7 +36,7 @@ $(function () {
 
         //set bombs
         while (count > 0) {
-            $divForBomb = getSell(
+            $divForBomb = getCell(
                 Math.max(0, Math.round(Math.random() * $x.val()) - 1),
                 Math.max(0, Math.round(Math.random() * $y.val()) - 1)
             );
@@ -62,7 +62,7 @@ $(function () {
             .click(onClick)
     }
 
-    function getSell(x, y) {
+    function getCell(x, y) {
         if (x < 0 || y < 0 || x > $x.val() - 1 || y > $y.val() - 1) return null;
         return $table.find("tr").eq(x).find("td").eq(y).find("div");
     }
@@ -111,34 +111,34 @@ $(function () {
         }
     }
 
-    function neighbors($sell) {
+    function neighbors($cell) {
         var i;
-        var x = $sell.data("x");
-        var y = $sell.data("y");
-        var sells = [
-            getSell(x + 1, y + 1), getSell(x + 1, y), getSell(x + 1, y - 1),
-            getSell(x - 1, y + 1), getSell(x - 1, y), getSell(x - 1, y - 1),
-            getSell(x    , y + 1), getSell(x    , y), getSell(x    , y - 1)
+        var x = $cell.data("x");
+        var y = $cell.data("y");
+        var cells = [
+            getCell(x + 1, y + 1), getCell(x + 1, y), getCell(x + 1, y - 1),
+            getCell(x - 1, y + 1), getCell(x - 1, y), getCell(x - 1, y - 1),
+            getCell(x    , y + 1), getCell(x    , y), getCell(x    , y - 1)
         ];
         var count = 0;
 
-        if ($sell.data("checked")) $found.text(parseInt($found.text() - 1));
-        $sell
+        if ($cell.data("checked")) $found.text(parseInt($found.text() - 1));
+        $cell
             .unbind("click")
             .addClass("no-bomb")
             .css("background-color", "white")
             .data("visited", true);
 
-        for (i in sells) {
-            if (sells[i] && sells[i].data("bomb")) count++;
+        for (i in cells) {
+            if (cells[i] && cells[i].data("bomb")) count++;
         }
 
         if (count > 0) {
-            $sell.text(count);
+            $cell.text(count);
         } else {
-            for (i in sells) {
-                if (sells[i] && !sells[i].data("visited") && !sells[i].data("bomb")) {
-                    neighbors(sells[i]);
+            for (i in cells) {
+                if (cells[i] && !cells[i].data("visited") && !cells[i].data("bomb")) {
+                    neighbors(cells[i]);
                 }
             }
         }
