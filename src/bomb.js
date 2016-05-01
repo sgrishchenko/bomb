@@ -14,8 +14,7 @@ $(function () {
 
     function restart() {
         var count = Math.min($count.val(), $x.val() * $y.val());
-        var $divForBomb;
-        var $tr, $td;
+        var $tr, $td, $div;
 
         //clear
         $found.text(0);
@@ -23,6 +22,7 @@ $(function () {
         $table.empty();
         clearInterval(interval);
         interval = undefined;
+        $all.text(count);
 
         //render table
         for (var i = 0; i < $x.val(); i++) {
@@ -36,15 +36,12 @@ $(function () {
 
         //set bombs
         while (count > 0) {
-            $divForBomb = getCell(
-                Math.max(0, Math.round(Math.random() * $x.val()) - 1),
-                Math.max(0, Math.round(Math.random() * $y.val()) - 1)
+            $div = getCell(
+                Math.round(Math.random() * ($x.val() - 1)),
+                Math.round(Math.random() * ($y.val() - 1))
             );
-            if (!$divForBomb.data("bomb")) {
-                $divForBomb
-                    .data("bomb", true)
-                    .addClass("bomb")
-                    /*.css("background-color", "red")*/; //for debug
+            if (!$div.data("bomb")) {
+                $div.data("bomb", true);
                 count--;
             }
         }
@@ -57,19 +54,20 @@ $(function () {
         }
 
         //events
-        $table.find("div")
-            .mousedown(onCheck)
-            .click(onClick)
+        $table.find("div").mousedown(onCheck).click(onClick)
     }
 
     function getCell(x, y) {
-        if (x < 0 || y < 0 || x > $x.val() - 1 || y > $y.val() - 1) return null;
+        if (x < 0 || y < 0 || x > $x.val() - 1 || y > $y.val() - 1) return $();
         return $table.find("tr").eq(x).find("td").eq(y).find("div");
     }
 
     function onClick() {
         var time = parseInt($time.text());
 
+        if ($(this).data("checked")) return;
+
+        //timer
         if (!interval) {
             interval = setInterval(function () {
                 $time.text(parseInt($time.text()) + 1);
@@ -78,27 +76,22 @@ $(function () {
         }
 
         if ($(this).data("bomb")) {
-            $table.find("div")
-                .unbind("click", onClick)
-                .unbind("mousedown", onCheck)
-                .filter(".bomb").css("background-color", "red");
+            $table.find("div").unbind().filter(":data(bomb)").addClass("bomb");
             clearInterval(interval);
-            if (confirm("Вы проиграли!!! Начать новую игру?")) {
-                restart();
-            }
+            if (confirm("Вы проиграли!!! Начать новую игру?")) restart();
+            return;
         } else {
             neighbors($(this));
+            $table.find("div").data("visited", false);
         }
 
-        if ($table.find("div.bomb").length + $table.find("div.no-bomb").length == $x.val() * $y.val()
-            && $table.find("div.no-bomb").length) {
+        if ($table.find(":data(bomb)").length + $table.find(".no-bomb").length == $x.val() * $y.val()) {
 
             if (!bestTime() || time < bestTime()) bestTime(time);
             alert("Вы выиграли!!! Ваш результат " + time + " сек.");
 
             restart();
         }
-        $table.find("div").data("visited", false);
     }
 
     function bestTime(value) {
@@ -106,60 +99,42 @@ $(function () {
 
         if (value === undefined) {
             return localStorage.getItem(key)
-        } else  {
+        } else {
             localStorage.setItem(key, value)
         }
     }
 
     function neighbors($cell) {
-        var i;
         var x = $cell.data("x");
         var y = $cell.data("y");
-        var cells = [
+        var $cells = $([
             getCell(x + 1, y + 1), getCell(x + 1, y), getCell(x + 1, y - 1),
             getCell(x - 1, y + 1), getCell(x - 1, y), getCell(x - 1, y - 1),
             getCell(x    , y + 1), getCell(x    , y), getCell(x    , y - 1)
-        ];
-        var count = 0;
+        ]).map(function () { return $(this).toArray(); });
+        var count = $cells.filter(":data(bomb)").length;
 
         if ($cell.data("checked")) $found.text(parseInt($found.text() - 1));
-        $cell
-            .unbind("click")
-            .addClass("no-bomb")
-            .css("background-color", "white")
-            .data("visited", true);
-
-        for (i in cells) {
-            if (cells[i] && cells[i].data("bomb")) count++;
-        }
+        $cell.unbind().addClass("no-bomb").data("visited", true);
 
         if (count > 0) {
             $cell.text(count);
         } else {
-            for (i in cells) {
-                if (cells[i] && !cells[i].data("visited") && !cells[i].data("bomb")) {
-                    neighbors(cells[i]);
+            $cells.each(function () {
+                if (!$(this).data("visited") && !$(this).data("bomb")) {
+                    neighbors($(this));
                 }
-            }
+            });
         }
     }
 
     function onCheck(e) {
-        if (e.button != 2) return;
+        var checked = $(this).data("checked");
 
-        if ($(this).data("checked")) {
-            $(this)
-                .data("checked", false)
-                .bind("click", onClick)
-                .css("background-color", "gray");
-            $found.text(parseInt($found.text() - 1));
-        } else {
-            $(this)
-                .data("checked", true)
-                .unbind("click", onClick)
-                .css("background-color", "yellow");
-            $found.text(parseInt($found.text()) + 1);
-        }
+        if (e.button != 2 || $(this).is(".no-bomb")) return;
+
+        $(this).data("checked", !checked).toggleClass("undefined checked");
+        $found.text($table.find(":data(checked)").length);
     }
 
     $x.change(restart).hide();
@@ -188,7 +163,6 @@ $(function () {
         $x.val($selected.data("x"));
         $y.val($selected.data("y"));
         $count.val($selected.data("bombs"));
-        $all.text($count.val());
 
         restart();
     }).change();

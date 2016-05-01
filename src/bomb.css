@@ -9,6 +9,22 @@ table, th, td {
     border: 1px solid black;
 }
 
+.undefined {
+    background-color: gray;
+}
+
+.checked {
+    background-color: yellow;
+}
+
+.no-bomb {
+    background-color: white;
+}
+
+.bomb {
+    background-color: red;
+}
+
 input {
     width: 40px;
 }
